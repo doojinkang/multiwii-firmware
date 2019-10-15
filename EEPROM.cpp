@@ -23,7 +23,7 @@ void readGlobalSet() {
     global_conf.accZero[ROLL] = 5000;    // for config error signalization
   }
 }
- 
+
 bool readEEPROM() {
   uint8_t i;
   int8_t tmp;
@@ -36,9 +36,9 @@ bool readEEPROM() {
   #endif
   eeprom_read_block((void*)&conf, (void*)(global_conf.currentSet * sizeof(conf) + sizeof(global_conf)), sizeof(conf));
   if(calculate_sum((uint8_t*)&conf, sizeof(conf)) != conf.checksum) {
-    blinkLED(6,100,3);    
+    blinkLED(6,100,3);
     SET_ALARM_BUZZER(ALRM_FAC_CONFIRM, ALRM_LVL_CONFIRM_ELSE);
-    LoadDefaults();                 // force load defaults 
+    LoadDefaults();                 // force load defaults
     return false;                   // defaults loaded, don't reload constants (EEPROM life saving)
   }
   // 500/128 = 3.90625    3.9062 * 3.9062 = 15.259   1526*100/128 = 1192
@@ -72,7 +72,7 @@ void writeGlobalSet(uint8_t b) {
   SET_ALARM_BUZZER(ALRM_FAC_CONFIRM, ALRM_LVL_CONFIRM_1);
 
 }
- 
+
 void writeParams(uint8_t b) {
   #ifdef MULTIPLE_CONFIGURATION_PROFILES
     if(global_conf.currentSet>2) global_conf.currentSet=0;
@@ -92,7 +92,7 @@ void writeParams(uint8_t b) {
   SET_ALARM_BUZZER(ALRM_FAC_CONFIRM, ALRM_LVL_CONFIRM_1);
 }
 
-void update_constants() { 
+void update_constants() {
   #if defined(GYRO_SMOOTHING)
     {
       uint8_t s[3] = GYRO_SMOOTHING;
@@ -166,7 +166,7 @@ void LoadDefaults() {
     conf.pid[PIDPOS].P8  = POSHOLD_P * 100;     conf.pid[PIDPOS].I8    = POSHOLD_I * 100;       conf.pid[PIDPOS].D8    = 0;
     conf.pid[PIDPOSR].P8 = POSHOLD_RATE_P * 10; conf.pid[PIDPOSR].I8   = POSHOLD_RATE_I * 100;  conf.pid[PIDPOSR].D8   = POSHOLD_RATE_D * 1000;
     conf.pid[PIDNAVR].P8 = NAV_P * 10;          conf.pid[PIDNAVR].I8   = NAV_I * 100;           conf.pid[PIDNAVR].D8   = NAV_D * 1000;
-  
+
     conf.pid[PIDMAG].P8   = 40;
 
     conf.pid[PIDVEL].P8 = 0;      conf.pid[PIDVEL].I8 = 0;    conf.pid[PIDVEL].D8 = 0;
@@ -243,7 +243,7 @@ void writePLog(void) {
 #endif
 #ifdef LOG_PERMANENT
     #define PLOG_SIZE sizeof(plog)
-#else 
+#else
     #define PLOG_SIZE 0
 #endif
 

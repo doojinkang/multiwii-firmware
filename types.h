@@ -178,12 +178,12 @@ typedef struct {
   uint8_t dynThrPID;
   uint8_t thrMid8;
   uint8_t thrExpo8;
-  int16_t angleTrim[2]; 
+  int16_t angleTrim[2];
   #if defined(EXTENDED_AUX_STATES)
    uint32_t activate[CHECKBOXITEMS];  //Extended aux states define six different aux state for each aux channel
   #else
    uint16_t activate[CHECKBOXITEMS];
-  #endif 
+  #endif
   uint8_t powerTrigger1;
   #if MAG
     int16_t mag_declination;
@@ -245,10 +245,10 @@ typedef struct {
 
 //This is the mode what is selected via the remote (NONE, HOLD, RTH and NAV (NAV-> exectute mission)
 enum gpsmode {
-  GPS_MODE_NONE = 0, 
-  GPS_MODE_HOLD, 
-  GPS_MODE_RTH, 
-  GPS_MODE_NAV 
+  GPS_MODE_NONE = 0,
+  GPS_MODE_HOLD,
+  GPS_MODE_RTH,
+  GPS_MODE_NAV
 };
 
 enum navstate {
@@ -284,7 +284,7 @@ enum naverror {
 
 typedef struct {
   uint8_t  number;     //Waypoint number
-  int32_t  pos[2];     //GPS position 
+  int32_t  pos[2];     //GPS position
   uint8_t  action;     //Action to follow
   int16_t  parameter1; //Parameter for the action
   int16_t  parameter2; //Parameter for the action
@@ -299,7 +299,7 @@ typedef struct {
   //Don't forget to change the reply size in GUI when change this struct;
 
   // on/off flags
-  // First byte 
+  // First byte
   uint8_t filtering : 1;
   uint8_t lead_filter : 1;
   uint8_t dont_reset_home_at_arm : 1;

@@ -17,7 +17,7 @@ void inline switch_led_flasher(uint8_t on);
 void inline switch_landing_lights(uint8_t on);
 void PilotLampSequence(uint16_t speed, uint16_t pattern, uint8_t num_patterns);
 
-static uint8_t cycleDone[5]={0,0,0,0,0}, 
+static uint8_t cycleDone[5]={0,0,0,0,0},
                resourceIsOn[5] = {0,0,0,0,0};
 static uint32_t LastToggleTime[5] ={0,0,0,0,0};
 static int16_t  i2c_errors_count_old = 0;
@@ -54,22 +54,22 @@ Resources:
 4: PL RED
 */
 void alarmHandler(void){
-  
+
   #if defined(RCOPTIONSBEEP)
     static uint8_t i = 0,firstrun = 1, last_rcOptions[CHECKBOXITEMS];
-                  
+
     if (last_rcOptions[i] != rcOptions[i])   alarmArray[ALRM_FAC_TOGGLE] = ALRM_LVL_TOGGLE_1;
-      last_rcOptions[i] = rcOptions[i]; 
+      last_rcOptions[i] = rcOptions[i];
       i++;
     if(i >= CHECKBOXITEMS)i=0;
-    
+
     if(firstrun == 1 && alarmArray[ALRM_FAC_CONFIRM] == ALRM_LVL_OFF) {
       alarmArray[ALRM_FAC_TOGGLE] = ALRM_LVL_OFF;    //only enable options beep AFTER gyro init
       alarmArray[ALRM_FAC_BEEPERON] = ALRM_LVL_OFF;
-    }        
+    }
     else firstrun = 0;
-  #endif  
-     
+  #endif
+
   #if defined(FAILSAFE)
     if ( failsafeCnt > (5*FAILSAFE_DELAY) && f.ARMED) {
       alarmArray[ALRM_FAC_FAILSAFE] = ALRM_LVL_FAILSAFE_PANIC;                                                                   //set failsafe warning level to 1 while landing
@@ -78,13 +78,13 @@ void alarmHandler(void){
     if ( failsafeCnt > (5*FAILSAFE_DELAY) && !f.ARMED) alarmArray[ALRM_FAC_FAILSAFE] = ALRM_LVL_FAILSAFE_FINDME;                  // tx turned off while motors are off: start "find me" signal
     if ( failsafeCnt == 0) alarmArray[ALRM_FAC_FAILSAFE] = ALRM_LVL_OFF;                                              // turn off alarm if TX is okay
   #endif
-  
+
   #if GPS
     if ((f.GPS_mode != GPS_MODE_NONE) && !f.GPS_FIX) alarmArray[ALRM_FAC_GPS] = ALRM_LVL_GPS_NOFIX;
     else if (!f.GPS_FIX) alarmArray[ALRM_FAC_GPS] = ALRM_LVL_ON;
     else alarmArray[ALRM_FAC_GPS] = ALRM_LVL_OFF;
   #endif
-  
+
   #if defined(BUZZER)
     if ( rcOptions[BOXBEEPERON] ) alarmArray[ALRM_FAC_BEEPERON] = ALRM_LVL_ON;
     else alarmArray[ALRM_FAC_BEEPERON] = ALRM_LVL_OFF;
@@ -93,13 +93,13 @@ void alarmHandler(void){
   #if defined(POWERMETER)
     if ( (pMeter[PMOTOR_SUM] < pAlarm) || (pAlarm == 0) || !f.ARMED) alarmArray[ALRM_FAC_PMETER] = ALRM_LVL_OFF;
     else if (pMeter[PMOTOR_SUM] > pAlarm) alarmArray[ALRM_FAC_PMETER] = ALRM_LVL_ON;
-  #endif 
-  
+  #endif
+
   #if defined(ARMEDTIMEWARNING)
     if (ArmedTimeWarningMicroSeconds > 0 && armedTime >= ArmedTimeWarningMicroSeconds && f.ARMED) alarmArray[ALRM_FAC_RUNTIME] = ALRM_LVL_ON;
     else alarmArray[ALRM_FAC_RUNTIME] = ALRM_LVL_OFF;
   #endif
-  
+
   #if defined(VBAT)
     if (vbatMin < conf.vbatlevel_crit) alarmArray[ALRM_FAC_VBAT] = ALRM_LVL_VBAT_CRIT;
     else if ( (analog.vbat > conf.vbatlevel_warn1)  || (NO_VBAT > analog.vbat)) alarmArray[ALRM_FAC_VBAT] = ALRM_LVL_OFF;
@@ -107,7 +107,7 @@ void alarmHandler(void){
     else if (analog.vbat > conf.vbatlevel_crit) alarmArray[ALRM_FAC_VBAT] = ALRM_LVL_VBAT_WARN;
     //else alarmArray[6] = 4;
   #endif
-  
+
   if (i2c_errors_count > i2c_errors_count_old+100 || i2c_errors_count < -1) alarmArray[ALRM_FAC_I2CERROR] = ALRM_LVL_ON;
   else alarmArray[ALRM_FAC_I2CERROR] = ALRM_LVL_OFF;
   #if defined(LCD_TELEMETRY) && !defined(SUPPRESS_TELEMETRY_PAGE_8)
@@ -116,7 +116,7 @@ void alarmHandler(void){
   alarmPatternComposer();
 }
 
-void alarmPatternComposer(){ 
+void alarmPatternComposer(){
   static char resource = 0;
   // patternDecode(length1,length2,length3,beeppause,endpause,loop)
   #if defined(BUZZER)
@@ -144,42 +144,42 @@ void alarmPatternComposer(){
     else if ( IS_ALARM_SET(ALRM_FAC_CONFIRM , ALRM_LVL_CONFIRM_2) ) patternDecode(resource,200,200,0,50,200);    //confirmation indicator 2x
     else if ( IS_ALARM_SET(ALRM_FAC_CONFIRM , ALRM_LVL_CONFIRM_ELSE) ) patternDecode(resource,200,200,200,50,200); //confirmation indicator 3x
     else if (SequenceActive[(uint8_t)resource] == 1) patternDecode(resource,0,0,0,0,0);                   // finish last sequence if not finished yet
-    else turnOff(resource);                                                                        // turn off the resource 
+    else turnOff(resource);                                                                        // turn off the resource
     alarmArray[ALRM_FAC_ACC] = ALRM_LVL_OFF;                                                                             //reset acc not calibrated
-    
+
   #endif
   #if defined(PILOTLAMP)
     if ( IS_ALARM_SET(ALRM_FAC_I2CERROR , ALRM_LVL_ON) ) PilotLampSequence(100,B000111,2);                                   //I2C Error
     else if ( IS_ALARM_SET(ALRM_FAC_BEEPERON , ALRM_LVL_ON) ) PilotLampSequence(100,B0101<<8|B00010001,4);                    //BeeperOn
-    else{        
-      resource = 2; 
+    else{
+      resource = 2;
       if (f.ARMED && f.ANGLE_MODE) patternDecode(resource,100,100,100,100,1000);                //Green Slow Blink-->angle
       else if (f.ARMED && f.HORIZON_MODE) patternDecode(resource,200,200,200,100,1000);         //Green mid Blink-->horizon
       else if (f.ARMED) patternDecode(resource,100,100,0,100,1000);                             //Green fast Blink-->acro
       else turnOff(resource);                                                               //switch off
-      resource = 3; 
+      resource = 3;
       #if GPS
         if (  IS_ALARM_SET(ALRM_FAC_GPS , ALRM_LVL_ON) ) patternDecode(resource,100,100,100,100,100); // blue fast blink -->no gps fix
         else if (f.GPS_mode != GPS_MODE_NONE) patternDecode(resource,100,100,100,100,1000);           //blue slow blink --> gps active
         else setTiming(resource,100,1000);                                                            //blue short blink -->gps fix ok
       #else
         turnOff(resource);
-      #endif   
-      resource = 4; 
+      #endif
+      resource = 4;
       if ( IS_ALARM_SET(ALRM_FAC_FAILSAFE , ALRM_LVL_FAILSAFE_PANIC) ) setTiming(resource,100,100);                   //Red fast blink--> failsafe panic
       else if ( IS_ALARM_SET(ALRM_FAC_FAILSAFE , ALRM_LVL_FAILSAFE_FINDME) ) patternDecode(resource,1000,0,0,0,2000); //red slow blink--> failsafe find me
-      else turnOff(resource); 
+      else turnOff(resource);
     }
-  #endif 
+  #endif
 }
 
 void patternDecode(uint8_t resource,uint16_t first,uint16_t second,uint16_t third,uint16_t cyclepause, uint16_t endpause){
   static uint16_t pattern[5][5];
   static uint8_t icnt[5] = {0,0,0,0,0};
-  
+
   if(SequenceActive[resource] == 0){
-    SequenceActive[resource] = 1; 
-    pattern[resource][0] = first; 
+    SequenceActive[resource] = 1;
+    pattern[resource][0] = first;
     pattern[resource][1] = second;
     pattern[resource][2] = third;
     pattern[resource][3] = endpause;
@@ -195,7 +195,7 @@ void patternDecode(uint8_t resource,uint16_t first,uint16_t second,uint16_t thir
     SequenceActive[resource] = 0;                               //sequence is now done, cycleDone sequence may begin
     alarmArray[ALRM_FAC_TOGGLE] = ALRM_LVL_OFF;                                //reset toggle bit
     alarmArray[ALRM_FAC_CONFIRM] = ALRM_LVL_OFF;                                //reset confirmation bit
-    turnOff(resource);   
+    turnOff(resource);
     return;
   }
   if (cycleDone[resource] == 1 || pattern[resource][icnt[resource]] == 0) {            //single on off cycle is done
@@ -203,8 +203,8 @@ void patternDecode(uint8_t resource,uint16_t first,uint16_t second,uint16_t thir
       icnt[resource]++;
     }
     cycleDone[resource] = 0;
-    turnOff(resource);    
-  }  
+    turnOff(resource);
+  }
 }
 
 void turnOff(uint8_t resource){
@@ -242,7 +242,7 @@ void turnOff(uint8_t resource){
   }
 }
 
-#if defined (PILOTLAMP) 
+#if defined (PILOTLAMP)
   //original code based on mr.rc-cam and jevermeister work
   //modified by doughboy to use timer interrupt
 
@@ -258,7 +258,7 @@ void turnOff(uint8_t resource){
 
 //define your light pattern by bits, 0=off 1=on
 //define up to 5 patterns that cycle using 15 bits, pattern starts at bit 0 in groups of 3
-//  14 13 12 11 10 9 8 7 6 5 4 3 2 1 0            
+//  14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
 //   R  B  G  R  B G R B G R B G R B G
 //parameters speed is the ms between patterns
 //           pattern is the 16bit (uses only 15 bits) specifying up to 5 patterns
@@ -271,11 +271,11 @@ void turnOff(uint8_t resource){
     static uint32_t lastswitch = 0;
     static uint8_t seqno = 0;
     static uint16_t lastpattern = 0;  //since variables are static, when switching patterns, the correct pattern will start on the second sequence
-    
-    if(millis() < (lastswitch + speed))                                 
+
+    if(millis() < (lastswitch + speed))
       return; //not time to change pattern yet
     lastswitch = millis();
-   
+
     for (uint8_t i=0;i<3;i++) {
       uint8_t state = (pattern >>(seqno*3+i)) & 1; //get pattern bit
       //since value is multiple of 25, we can calculate time based on pattern position
@@ -315,7 +315,7 @@ void turnOff(uint8_t resource){
      PL_PIN_OFF;
      PL_CHANNEL+=PL_IDLE;
      state=0;
-   } 
+   }
  }
 #endif
 
@@ -353,35 +353,35 @@ void blinkLED(uint8_t num, uint8_t ontime,uint8_t repeat) {
 
   void setTiming(uint8_t resource, uint16_t pulse, uint16_t pause){
     if (!resourceIsOn[resource] && (millis() >= (LastToggleTime[resource] + pause))&& pulse != 0) {
-      resourceIsOn[resource] = 1;      
+      resourceIsOn[resource] = 1;
       toggleResource(resource,1);
-      LastToggleTime[resource]=millis();      
+      LastToggleTime[resource]=millis();
     } else if ( (resourceIsOn[resource] && (millis() >= LastToggleTime[resource] + pulse) ) || (pulse==0 && resourceIsOn[resource]) ) {
       resourceIsOn[resource] = 0;
       toggleResource(resource,0);
       LastToggleTime[resource]=millis();
-      cycleDone[resource] = 1;     
-    } 
-  } 
- 
+      cycleDone[resource] = 1;
+    }
+  }
+
   void toggleResource(uint8_t resource, uint8_t activate){
-     switch(resource) {     
-        #if defined (BUZZER)   
+     switch(resource) {
+        #if defined (BUZZER)
           case 1:
             if (activate == 1) {BUZZERPIN_ON;}
             else BUZZERPIN_OFF;
-            break; 
+            break;
         #endif
-        #if defined (PILOTLAMP) 
+        #if defined (PILOTLAMP)
           case 2:
             if (activate == 1) PilotLamp(PL_GRN_ON);
             else PilotLamp(PL_GRN_OFF);
             break;
-          case 3: 
+          case 3:
             if (activate == 1) PilotLamp(PL_BLU_ON);
             else PilotLamp(PL_BLU_OFF);
             break;
-          case 4: 
+          case 4:
             if (activate == 1) PilotLamp(PL_RED_ON);
             else PilotLamp(PL_RED_OFF);
             break;
@@ -401,12 +401,12 @@ void blinkLED(uint8_t num, uint8_t ontime,uint8_t repeat) {
 /********************************************************************/
 
   #if defined(LED_RING)
-  
+
   #define LED_RING_ADDRESS 0xDA //7 bits
-  
+
   void i2CLedRingState(void) {
     uint8_t b[10];
-  
+
     b[0]='M'; // MultiwII mode
     if (f.ARMED) { // Motors running = flying
       if(!(f.ANGLE_MODE||f.HORIZON_MODE)){ //ACRO
@@ -422,21 +422,21 @@ void blinkLED(uint8_t num, uint8_t ontime,uint8_t repeat) {
       }
       i2c_rep_start(LED_RING_ADDRESS);
       i2c_write(b[0]);
-      i2c_stop();  
-    } else if (!f.ACC_CALIBRATED) { // Multiwii not stable or uncalibrated 
+      i2c_stop();
+    } else if (!f.ACC_CALIBRATED) { // Multiwii not stable or uncalibrated
       b[0]= 't';
       i2c_rep_start(LED_RING_ADDRESS);
       i2c_write(b[0]);
-      i2c_stop();   
+      i2c_stop();
     } else { // Motors not running = on the ground
       b[0]= 's';
-      if (f.ANGLE_MODE) b[1]=1; 
-      else if (f.HORIZON_MODE) b[1]=2; 
-      else b[1]= 0;                  
-      if (f.BARO_MODE) b[2]=1; 
-      else b[2]= 0;                  
-      if (f.MAG_MODE) b[3]=1; 
-      else b[3]= 0;                  
+      if (f.ANGLE_MODE) b[1]=1;
+      else if (f.HORIZON_MODE) b[1]=2;
+      else b[1]= 0;
+      if (f.BARO_MODE) b[2]=1;
+      else b[2]= 0;
+      if (f.MAG_MODE) b[3]=1;
+      else b[3]= 0;
   #if GPS
       if (rcOptions[BOXGPSHOME]) b[4]=2;
       else if (rcOptions[BOXGPSHOLD]) b[4]=1;
@@ -445,7 +445,7 @@ void blinkLED(uint8_t num, uint8_t ontime,uint8_t repeat) {
       b[4]=0;
   #endif
       b[5]=(180-att.heading)/2; // 1 unit = 2 degrees;
-      b[6]=GPS_numSat;                                      
+      b[6]=GPS_numSat;
       i2c_rep_start(LED_RING_ADDRESS);
       for(uint8_t i=0;i<7;i++){
         i2c_write(b[i]);
@@ -456,11 +456,11 @@ void blinkLED(uint8_t num, uint8_t ontime,uint8_t repeat) {
     if (analog.vbat < conf.vbatlevel_warn1){ // Uh oh - battery low
       i2c_rep_start(LED_RING_ADDRESS);
       i2c_write('r');
-      i2c_stop();   
+      i2c_stop();
     }
   # endif
   }
-  
+
   void blinkLedRing(void) {
     uint8_t b[3];
     b[0]='g';
@@ -484,18 +484,18 @@ void blinkLED(uint8_t num, uint8_t ontime,uint8_t repeat) {
     LED_FLASHER_AUTO,
     LED_FLASHER_CUSTOM
   } led_flasher_control = LED_FLASHER_AUTO;
-  
+
   void init_led_flasher() {
     #if defined(LED_FLASHER_DDR)
     LED_FLASHER_DDR |= (1<<LED_FLASHER_BIT);
     switch_led_flasher(0);
     #endif
   }
-  
+
   void led_flasher_set_sequence(uint8_t s) {
     led_flasher_sequence = s;
   }
-  
+
   void inline switch_led_flasher(uint8_t on) {
     #if defined(LED_FLASHER_DDR)
       #ifndef LED_FLASHER_INVERT
@@ -509,12 +509,12 @@ void blinkLED(uint8_t num, uint8_t ontime,uint8_t repeat) {
       }
     #endif
   }
-  
+
   static uint8_t inline led_flasher_on() {
     uint8_t seg = (currentTime/1000/125)%8;
     return (led_flasher_sequence & 1<<seg);
   }
-  
+
   void auto_switch_led_flasher() {
     if (led_flasher_on()) {
       switch_led_flasher(1);
@@ -522,7 +522,7 @@ void blinkLED(uint8_t num, uint8_t ontime,uint8_t repeat) {
       switch_led_flasher(0);
     }
   }
-  
+
   /* auto-select a fitting sequence according to the
    * copter situation
    */
@@ -555,15 +555,15 @@ void blinkLED(uint8_t num, uint8_t ontime,uint8_t repeat) {
     /* Let's load the plain old boring sequence as a last resort */
     led_flasher_set_sequence(LED_FLASHER_SEQUENCE);
   }
-  
+
   #endif
-  
+
   #if defined(LANDING_LIGHTS_DDR)
   void init_landing_lights(void) {
     LANDING_LIGHTS_DDR |= 1<<LANDING_LIGHTS_BIT;
     switch_landing_lights(0);
   }
-  
+
   void inline switch_landing_lights(uint8_t on) {
     #ifndef LANDING_LIGHTS_INVERT
     if (on) {
@@ -575,7 +575,7 @@ void blinkLED(uint8_t num, uint8_t ontime,uint8_t repeat) {
       LANDING_LIGHTS_PORT &= ~(1<<LANDING_LIGHTS_BIT);
     }
   }
-  
+
   void auto_switch_landing_lights(void) {
     if (rcOptions[BOXLLIGHTS]
     #if defined(LANDING_LIGHTS_AUTO_ALTITUDE) & SONAR
@@ -702,4 +702,3 @@ void vario_output(uint16_t d, uint8_t up) {
 }
 
 #endif
-

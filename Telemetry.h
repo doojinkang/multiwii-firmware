@@ -16,7 +16,7 @@
 
 #if defined(FRSKY_TELEMETRY)
     // Definitions
-    #define TELEMETRY_BAUD     9600  
+    #define TELEMETRY_BAUD     9600
 
     // Frame protocol
     #define Protocol_Header    0x5E
@@ -58,7 +58,7 @@
 
 #if defined(SPORT_TELEMETRY)
 
-    #define TELEMETRY_BAUD   57600  
+    #define TELEMETRY_BAUD   57600
     #define FRSKY_START_STOP  0x7e
     #define FRSKY_BYTESTUFF   0x7d
     #define FRSKY_STUFF_MASK  0x20

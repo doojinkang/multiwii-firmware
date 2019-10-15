@@ -11,7 +11,7 @@ void readPLog(void);
 void writePLog(void);
 
 #if defined(GPS)
-//EEPROM functions for storing and restoring waypoints 
+//EEPROM functions for storing and restoring waypoints
 
 void storeWP(void);     // Stores the WP data in the wp struct in the EEPROM
 bool recallWP(uint8_t); // Read the given number of WP from the eeprom, supposedly we can use this during flight.

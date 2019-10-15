@@ -129,13 +129,13 @@ int16_t _atan2(int32_t y, int32_t x){
   return a;
 }
 
-float InvSqrt (float x){ 
-  union{  
-    int32_t i;  
-    float   f; 
-  } conv; 
-  conv.f = x; 
-  conv.i = 0x5f1ffff9 - (conv.i >> 1); 
+float InvSqrt (float x){
+  union{
+    int32_t i;
+    float   f;
+  } conv;
+  conv.f = x;
+  conv.i = 0x5f1ffff9 - (conv.i >> 1);
   return conv.f * (1.68191409f - 0.703952253f * x * conv.f * conv.f);
 }
 
@@ -241,7 +241,7 @@ void getEstimatedAttitude(){
       EstM.A32[axis]  += (int32_t)(imu.magADC[axis] - EstM.A16[2*axis+1])<<(16-GYR_CMPFM_FACTOR);
     #endif
   }
-  
+
   if (EstG.V16.Z > ACCZ_25deg)
     f.SMALL_ANGLES_25 = 1;
   else
@@ -263,8 +263,8 @@ void getEstimatedAttitude(){
   att.heading /= 10;
 
   #if defined(THROTTLE_ANGLE_CORRECTION)
-    cosZ = mul(EstG.V16.Z , 100) / ACC_1G ;                                                   // cos(angleZ) * 100 
-    throttleAngleCorrection = THROTTLE_ANGLE_CORRECTION * constrain(100 - cosZ, 0, 100) >>3;  // 16 bit ok: 200*150 = 30000  
+    cosZ = mul(EstG.V16.Z , 100) / ACC_1G ;                                                   // cos(angleZ) * 100
+    throttleAngleCorrection = THROTTLE_ANGLE_CORRECTION * constrain(100 - cosZ, 0, 100) >>3;  // 16 bit ok: 200*150 = 30000
   #endif
 
   // projection of ACC vector to global Z, with 1G subtructed
@@ -273,7 +273,7 @@ void getEstimatedAttitude(){
   if (!f.ARMED) {
     accZoffset -= accZoffset>>3;
     accZoffset += accZ;
-  }  
+  }
   accZ -= accZoffset>>3;
 }
 
@@ -326,7 +326,7 @@ uint8_t getEstimatedAltitude(){
     errorAltitudeI += conf.pid[PIDALT].I8 * error16 >>6;
     errorAltitudeI = constrain(errorAltitudeI,-30000,30000);
     BaroPID += errorAltitudeI>>9; //I in range +/-60
- 
+
     applyDeadband(accZ, ACC_Z_DEADBAND);
 
     static int32_t lastBaroAlt;
@@ -341,7 +341,7 @@ uint8_t getEstimatedAltitude(){
     // Integrator - velocity, cm/sec
     vel += accZ * ACC_VelScale * dTime;
 
-    // apply Complimentary Filter to keep the calculated velocity based on baro velocity (i.e. near real velocity). 
+    // apply Complimentary Filter to keep the calculated velocity based on baro velocity (i.e. near real velocity).
     // By using CF it's possible to correct the drift of integrated accZ (velocity) without loosing the phase, i.e without delay
     vel = vel * 0.985f + baroVel * 0.015f;
 

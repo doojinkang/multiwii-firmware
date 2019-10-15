@@ -149,16 +149,16 @@ void SerialEnd(uint8_t port) {
   }
 }
 
-// we don't care about ring buffer overflow (head->tail) to avoid a test condition : data is lost anyway if it happens 
+// we don't care about ring buffer overflow (head->tail) to avoid a test condition : data is lost anyway if it happens
 void store_uart_in_buf(uint8_t data, uint8_t portnum) {
   #if defined(SERIAL_RX)
     if (portnum == RX_SERIAL_PORT) {
-      if (!spekFrameFlags) { 
+      if (!spekFrameFlags) {
         sei();
         uint32_t spekTimeNow = (timer0_overflow_count << 8) * (64 / clockCyclesPerMicrosecond()); //Move timer0_overflow_count into registers so we don't touch a volatile twice
         uint32_t spekInterval = spekTimeNow - spekTimeLast;                                       //timer0_overflow_count will be slightly off because of the way the Arduino core timer interrupt handler works; that is acceptable for this use. Using the core variable avoids an expensive call to millis() or micros()
         spekTimeLast = spekTimeNow;
-        if (spekInterval > 2500) {  //Potential start of a Spektrum frame, they arrive every 11 or every 22 ms. Mark it, and clear the buffer. 
+        if (spekInterval > 2500) {  //Potential start of a Spektrum frame, they arrive every 11 or every 22 ms. Mark it, and clear the buffer.
           serialTailRX[portnum] = 0;
           serialHeadRX[portnum] = 0;
           spekFrameFlags = 0x01;
@@ -195,7 +195,7 @@ uint8_t SerialRead(uint8_t port) {
       #if (ARDUINO >= 100)
         if(port == 0) USB_Flush(USB_CDC_TX);
       #endif
-      if(port == 0) return USB_Recv(USB_CDC_RX);      
+      if(port == 0) return USB_Recv(USB_CDC_RX);
     #endif
   #endif
   uint8_t t = serialTailRX[port];

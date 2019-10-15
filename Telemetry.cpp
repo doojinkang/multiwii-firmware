@@ -3,7 +3,7 @@
 // Version: 0.4.0   - by QuadBow
 // Changes: V0.4.0: - supports 2.4 with new features added
 //                    device specific selection of data to be sent
-//                    different ways for displaying             
+//                    different ways for displaying
 //                    different ways to present data
 // Version: 0.3.0
 // Changes: V0.3.0: - new structure with cpp/h-files
@@ -54,7 +54,7 @@ void check_FrSky_stuffing(uint8_t Data) //byte stuffing
 void write_FrSky16(uint16_t Data)
 {
   uint8_t Data_send;
-  Data_send = Data;      
+  Data_send = Data;
   check_FrSky_stuffing(Data_send);
   Data_send = Data >> 8 & 0xff;
   check_FrSky_stuffing(Data_send);
@@ -68,11 +68,11 @@ static void sendDataHead(uint8_t Data_id)
 
 static void sendDataTail(void)
 {
-  write_FrSky8(Protocol_Tail);      
+  write_FrSky8(Protocol_Tail);
 }
 
 //*********************************************************************************
-//-----------------   Telemetrie Data   ------------------------------------------   
+//-----------------   Telemetrie Data   ------------------------------------------
 //*********************************************************************************
 
 // Temperature and NumSats
@@ -86,7 +86,7 @@ void inline send_Temperature(void)
   #endif
   #if GPS
       int16_t Data_NumSats;
-      if (f.GPS_FIX && GPS_numSat >= 4) {           
+      if (f.GPS_FIX && GPS_numSat >= 4) {
          Data_NumSats = GPS_numSat;
          sendDataHead(ID_Temperature2);
          write_FrSky16(Data_NumSats);
@@ -99,11 +99,11 @@ void inline send_RPM(void)
 {
   #if GPS
       uint16_t Data_RPM;
-      if (f.GPS_FIX && GPS_numSat >= 4) {           
+      if (f.GPS_FIX && GPS_numSat >= 4) {
          Data_RPM = GPS_distanceToHome; // Distance to home alias RPM
          sendDataHead(ID_RPM);
          write_FrSky16(Data_RPM);
-         }     
+         }
   #endif
 }
 
@@ -127,7 +127,7 @@ void inline send_Fuel(void)
   #endif
 }
 
-// Cell voltage 
+// Cell voltage
 void inline send_cell_volt(void) // Data compatibel to FrSky FLVS-01 voltage sensor
 {
   #if defined(VBAT_CELLS)
@@ -149,7 +149,7 @@ void inline send_cell_volt(void) // Data compatibel to FrSky FLVS-01 voltage sen
 void inline send_Altitude(void)
 {
   #if defined(TELEMETRY_ALT_BARO) and BARO
-      #if defined(FRSKY_FLD02) 
+      #if defined(FRSKY_FLD02)
           int16_t Data_altitude;
           Data_altitude = (alt.EstAlt + 50) / 100;
           sendDataHead(ID_Altitude_bp);
@@ -166,10 +166,10 @@ void inline send_Altitude(void)
       #endif
   #endif
   #if defined(TELEMETRY_ALT_GPS) and GPS
-      #if defined(FRSKY_FLD02) 
+      #if defined(FRSKY_FLD02)
           #if not defined(TELEMETRY_ALT_BARO)
               int16_t Data_altitude;
-              if (f.GPS_FIX && GPS_numSat >= 4) {           
+              if (f.GPS_FIX && GPS_numSat >= 4) {
                  Data_altitude = GPS_altitude;
                  sendDataHead(ID_Altitude_bp);
                  write_FrSky16(Data_altitude);
@@ -225,11 +225,11 @@ void inline send_GPS_speed(void)
       uint16_t Data_GPS_speed_bp;
       uint16_t Data_GPS_speed_ap;
       uint16_t temp;
-      if (f.GPS_FIX && GPS_numSat >= 4) {           
+      if (f.GPS_FIX && GPS_numSat >= 4) {
          #if defined KILOMETER_HOUR                                        // OPENTX specific format in kilometers per hour => factor 36/100 (will be devided by 10 later)
-             temp = (GPS_speed * 36) / 10; 
+             temp = (GPS_speed * 36) / 10;
          #else                                                             // FRSKY specific format in knots => factor ~50 (will be devided by 10 later)
-             temp = (GPS_speed * 40) / 203; 
+             temp = (GPS_speed * 40) / 203;
          #endif
          Data_GPS_speed_bp = temp / 10;                                    // here comes the devision by 10
          Data_GPS_speed_ap = temp - Data_GPS_speed_bp * 10;
@@ -249,7 +249,7 @@ void inline send_GPS_longitude(void)
       uint16_t Data_Longitude_ap;
       uint16_t Data_E_W;
       uint32_t temp, rest, decimal;
-      if (f.GPS_FIX && GPS_numSat >= 4) {           
+      if (f.GPS_FIX && GPS_numSat >= 4) {
          temp = abs(GPS_coord[LON]);
          #if defined(COORDFORMAT_DECIMALMINUTES)
              decimal = temp / 10000000;
@@ -284,7 +284,7 @@ void inline send_GPS_latitude(void)
       uint16_t Data_Latitude_ap;
       uint16_t Data_N_S;
       uint32_t temp, rest, decimal;
-      if (f.GPS_FIX && GPS_numSat >= 4) {           
+      if (f.GPS_FIX && GPS_numSat >= 4) {
          temp = abs(GPS_coord[LAT]);
          #if defined(COORDFORMAT_DECIMALMINUTES)
              decimal = temp / 10000000;
@@ -307,7 +307,7 @@ void inline send_GPS_latitude(void)
          sendDataHead(ID_Latitude_ap);
          write_FrSky16(Data_Latitude_ap);
          sendDataHead(ID_N_S);
-         write_FrSky16(Data_N_S);     
+         write_FrSky16(Data_N_S);
          }
   #endif
 }
@@ -348,11 +348,11 @@ void inline send_Accel(void)
       sendDataHead(ID_Acc_Y);
       write_FrSky16(Data_Acc_Y);
       sendDataHead(ID_Acc_Z);
-      write_FrSky16(Data_Acc_Z);     
+      write_FrSky16(Data_Acc_Z);
   #endif
 }
 
-// Voltage (Ampere Sensor) 
+// Voltage (Ampere Sensor)
 void inline send_Voltage_ampere(void) // Data compatibel to FrSky FAS-100 voltage sensor, FLD-02 uses only analog data A1 and A2
 {
   #if defined (VBAT) and not defined(FRSKY_FLD02)
@@ -364,22 +364,22 @@ void inline send_Voltage_ampere(void) // Data compatibel to FrSky FAS-100 voltag
       #else
           uint16_t voltage;
           uint16_t Data_Voltage_vBat_bp;
-          uint16_t Data_Voltage_vBat_ap;   
+          uint16_t Data_Voltage_vBat_ap;
           voltage = ((analog.vbat * 110) / 21);
           Data_Voltage_vBat_bp = voltage / 100;
           sendDataHead(ID_Voltage_Amp_bp);
           write_FrSky16(Data_Voltage_vBat_bp);
-          Data_Voltage_vBat_ap = ((voltage % 100) + 5) / 10; 
+          Data_Voltage_vBat_ap = ((voltage % 100) + 5) / 10;
           sendDataHead(ID_Voltage_Amp_ap);
-          write_FrSky16(Data_Voltage_vBat_ap); 
+          write_FrSky16(Data_Voltage_vBat_ap);
       #endif
-  #endif  
+  #endif
 
   #if defined(POWERMETER)
       uint16_t Data_Voltage_I_Motor;
       Data_Voltage_I_Motor = analog.amperage;
       sendDataHead(ID_Current);
-      write_FrSky16(Data_Voltage_I_Motor);   
+      write_FrSky16(Data_Voltage_I_Motor);
   #endif
 }
 
@@ -395,37 +395,37 @@ void run_telemetry(void)
      switch (tele_loop) {
 			case 1:
                         send_Voltage_ampere();
-                        send_Accel();         
+                        send_Accel();
                         break;
                         case 2:
-			send_Fuel();         
+			send_Fuel();
 			send_GPS_longitude();
 			break;
 			case 3:
-			send_Temperature();  
-                        send_Accel();        
+			send_Temperature();
+                        send_Accel();
                         break;
 			case 4:
-			send_Altitude();     
-			send_GPS_speed();    
-                        send_Course();       
+			send_Altitude();
+			send_GPS_speed();
+                        send_Course();
 			break;
 			case 5:
                         send_Voltage_ampere();
-                        send_Accel();         
+                        send_Accel();
                         break;
 			case 6:
-			send_RPM();       
+			send_RPM();
 			send_GPS_latitude();
 			break;
 			case 7:
                         send_GPS_speed();
-                        send_Accel();    
+                        send_Accel();
 			send_cell_volt();
                         break;
 			default:
-                        send_Altitude(); 
-			send_Time();     
+                        send_Altitude();
+			send_Time();
 			tele_loop = 0;
 			break;
 		        }

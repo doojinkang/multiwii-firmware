@@ -140,7 +140,7 @@ extern uint8_t next_step;                 //The mission step which is upcoming i
 
 // The orginal altitude used as base our new altitude during nav
 extern int32_t original_altitude;
-//This is the target what we want to reach 
+//This is the target what we want to reach
 extern int32_t target_altitude;
 //This is the interim value which is feeded into the althold controller
 extern int32_t alt_to_hold;
@@ -157,7 +157,7 @@ extern uint8_t  land_detect;            //land detector variable
 // ************************
 extern mission_step_struct mission_step;
 
-//possible action codes for a mission step 
+//possible action codes for a mission step
 #define MISSION_WAYPOINT      1   //Set waypoint
 #define MISSION_HOLD_UNLIM    2   //Poshold unlimited
 #define MISSION_HOLD_TIME     3   //Hold for a predetermined time
@@ -181,7 +181,7 @@ extern mission_step_struct mission_step;
 extern int16_t  nav[2];
 
 
-#endif 
+#endif
 
 // default POSHOLD control gains
 #define POSHOLD_P              .15
