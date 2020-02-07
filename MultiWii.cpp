@@ -22,6 +22,9 @@ March  2015     V2.4
 #include "Output.h"
 #include "RX.h"
 #include "Sensors.h"
+#ifdef USE_ALT_SOFT_SERIAL
+  #include "AltSoftSerial.h"
+#endif
 #include "Serial.h"
 #include "GPS.h"
 #include "Protocol.h"
@@ -561,6 +564,9 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
     }
   }
 
+  #ifdef USE_ALT_SOFT_SERIAL
+    serialAltCom();
+  #endif
   #if !(defined(SERIAL_RX) && defined(PROMINI))  //Only one serial port on ProMini.  Skip serial com if SERIAL RX in use. Note: Spek code will auto-call serialCom if GUI data detected on serial0.
     serialCom();
   #endif
@@ -632,6 +638,9 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
 
 void setup() {
   SerialOpen(0,SERIAL0_COM_SPEED);
+  #ifdef USE_ALT_SOFT_SERIAL
+    AltSerialOpen(ALT_SERIAL_COM_SPEED);
+  #endif
   #if defined(PROMICRO)
     SerialOpen(1,SERIAL1_COM_SPEED);
   #endif
@@ -642,7 +651,7 @@ void setup() {
   #endif
   LEDPIN_PINMODE;
   POWERPIN_PINMODE;
-  BUZZERPIN_PINMODE;
+  // BUZZERPIN_PINMODE;   // pin 8
   STABLEPIN_PINMODE;
   POWERPIN_OFF;
   initOutput();

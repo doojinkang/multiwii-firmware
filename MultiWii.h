@@ -101,6 +101,11 @@ extern uint16_t lookupThrottleRC[11];
   extern uint32_t armedTime;
 #endif
 
+#ifdef USE_ALT_SOFT_SERIAL
+  #include "AltSoftSerial.h"
+  extern void serialAltCom();
+#endif
+
 #if GPS
 // *************************************** begin GPS common variables and defines ******************************************************************
 
