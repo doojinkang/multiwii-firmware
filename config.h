@@ -497,6 +497,13 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
 /*****************                                                                 ***************/
 /*************************************************************************************************/
 
+  /******            Alt serial com for 328P *********************************/
+    /* PROMINI board has one Hardware serial for RX */
+    /* Alt software serial for communication for MultiwiiConf, Bluetooth */
+    /* Alt software serial uses 8, 9, 10, and timer 1 so PWM 3, 5, 6, 11 for motors */
+    // #define USE_ALT_SOFT_SERIAL
+    #define ALT_SERIAL_COM_SPEED 19200 // 57600
+
   /******                Serial com speed    *********************************/
     /* This is the speed of the serial interfaces */
     #define SERIAL0_COM_SPEED 115200
