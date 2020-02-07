@@ -40,7 +40,7 @@
 /****************************************/
 
 static uint16_t ticks_per_bit=0;
-bool AltSoftSerial::timing_error=false;
+// bool AltSoftSerial::timing_error=false;
 
 static uint8_t rx_state;
 static uint8_t rx_byte;
@@ -49,7 +49,7 @@ static uint16_t rx_target;
 static uint16_t rx_stop_ticks=0;
 static volatile uint8_t rx_buffer_head;
 static volatile uint8_t rx_buffer_tail;
-#define RX_BUFFER_SIZE 80
+// #define RX_BUFFER_SIZE 80
 static volatile uint8_t rx_buffer[RX_BUFFER_SIZE];
 
 static volatile uint8_t tx_state=0;
@@ -57,7 +57,7 @@ static uint8_t tx_byte;
 static uint8_t tx_bit;
 static volatile uint8_t tx_buffer_head;
 static volatile uint8_t tx_buffer_tail;
-#define TX_BUFFER_SIZE 68
+// #define TX_BUFFER_SIZE 68
 static volatile uint8_t tx_buffer[TX_BUFFER_SIZE];
 
 
@@ -67,11 +67,14 @@ static volatile uint8_t tx_buffer[TX_BUFFER_SIZE];
 
 #define MAX_COUNTS_PER_BIT  6241  // 65536 / 10.5
 
-void AltSoftSerial::init(uint32_t cycles_per_bit)
+
+// void AltSoftSerial::init(uint32_t cycles_per_bit)
+void AltSerialOpen(uint32_t baud)
 {
+	uint32_t cycles_per_bit = (ALTSS_BASE_FREQ + baud / 2) / baud;
 	//Serial.printf("cycles_per_bit = %d\n", cycles_per_bit);
 	if (cycles_per_bit < MAX_COUNTS_PER_BIT) {
-		CONFIG_TIMER_NOPRESCALE();
+		CONFIG_TIMER_NOPRESCALE(); //ok
 	} else {
 		cycles_per_bit /= 8;
 		//Serial.printf("cycles_per_bit/8 = %d\n", cycles_per_bit);
@@ -113,7 +116,11 @@ void AltSoftSerial::init(uint32_t cycles_per_bit)
 	ENABLE_INT_INPUT_CAPTURE();
 }
 
-void AltSoftSerial::end(void)
+void flushInput(void);
+void flushOutput(void);
+
+// void AltSoftSerial::end(void)
+void AltSerialEnd()
 {
 	DISABLE_INT_COMPARE_B();
 	DISABLE_INT_INPUT_CAPTURE();
@@ -128,8 +135,36 @@ void AltSoftSerial::end(void)
 /**           Transmission             **/
 /****************************************/
 
-void AltSoftSerial::writeByte(uint8_t b)
+
+void AltUartSendData()
 {
+	uint8_t intr_state, head, tail;
+
+	head = tx_buffer_head;
+  tail = tx_buffer_tail;
+	// while (tail == head) ; // wait until space in buffer
+
+	intr_state = SREG;
+	cli();
+	if (!tx_state) {
+    if (++tail >= TX_BUFFER_SIZE) tail = 0;
+    tx_buffer_tail = tail;
+    tx_byte = tx_buffer[tail];
+    tx_bit = 0;
+		tx_state = 1;			// one bit
+		ENABLE_INT_COMPARE_A();
+		CONFIG_MATCH_CLEAR();
+		SET_COMPARE_A(GET_TIMER_COUNT() + 16);
+	}
+	SREG = intr_state;
+}
+
+// void AltSoftSerial::writeByte(uint8_t b)
+void AltSerialWrite(uint8_t b)
+{
+	AltSerialSerialize(b);
+	AltUartSendData();
+/*
 	uint8_t intr_state, head;
 
 	head = tx_buffer_head + 1;
@@ -141,14 +176,15 @@ void AltSoftSerial::writeByte(uint8_t b)
 		tx_buffer[head] = b;
 		tx_buffer_head = head;
 	} else {
-		tx_state = 1;
+		tx_state = 1;			// one bit
 		tx_byte = b;
-		tx_bit = 0;
+		tx_bit = 0;				// start bit
 		ENABLE_INT_COMPARE_A();
 		CONFIG_MATCH_CLEAR();
 		SET_COMPARE_A(GET_TIMER_COUNT() + 16);
 	}
 	SREG = intr_state;
+*/
 }
 
 
@@ -209,7 +245,8 @@ ISR(COMPARE_A_INTERRUPT)
 	}
 }
 
-void AltSoftSerial::flushOutput(void)
+// void AltSoftSerial::flushOutput(void)
+void flushOutput(void)
 {
 	while (tx_state) /* wait */ ;
 }
@@ -297,7 +334,8 @@ ISR(COMPARE_B_INTERRUPT)
 
 
 
-int AltSoftSerial::read(void)
+// int AltSoftSerial::read(void)
+uint8_t AltSerialRead()
 {
 	uint8_t head, tail, out;
 
@@ -310,7 +348,8 @@ int AltSoftSerial::read(void)
 	return out;
 }
 
-int AltSoftSerial::peek(void)
+// int AltSoftSerial::peek(void)
+uint8_t AltSerialPeek()
 {
 	uint8_t head, tail;
 
@@ -321,7 +360,8 @@ int AltSoftSerial::peek(void)
 	return rx_buffer[tail];
 }
 
-int AltSoftSerial::available(void)
+// int AltSoftSerial::available(void)
+uint8_t AltSerialAvailable()
 {
 	uint8_t head, tail;
 
@@ -331,17 +371,37 @@ int AltSoftSerial::available(void)
 	return RX_BUFFER_SIZE + head - tail;
 }
 
-int AltSoftSerial::availableForWrite(void)
+// int AltSoftSerial::availableForWrite(void)
+uint8_t AltSerialUsedTXBuff()
 {
-	uint8_t head, tail;
-	head = tx_buffer_head;
-	tail = tx_buffer_tail;
+  return ((uint8_t)(tx_buffer_head - tx_buffer_tail)) % TX_BUFFER_SIZE;
+	// uint8_t head, tail;
+	// head = tx_buffer_head;
+	// tail = tx_buffer_tail;
 
-	if (tail > head) return tail - head;
-	return TX_BUFFER_SIZE + tail - head;
+	// if (tail > head) return tail - head;
+	// return TX_BUFFER_SIZE + tail - head;
 };
 
-void AltSoftSerial::flushInput(void)
+
+bool AltSerialTXfree(uint8_t port)
+{
+	return (tx_buffer_head == tx_buffer_tail);
+}
+
+
+void AltSerialSerialize(uint8_t a)
+{
+  uint8_t t = tx_buffer_head;
+  if (++t >= TX_BUFFER_SIZE) t = 0;
+  tx_buffer[t] = a;
+  tx_buffer_head = t;
+}
+
+
+
+// void AltSoftSerial::flushInput(void)
+void flushInput(void)
 {
 	rx_buffer_head = rx_buffer_tail;
 }

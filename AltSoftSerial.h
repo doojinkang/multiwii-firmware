@@ -36,9 +36,26 @@
 #if defined(__arm__) && defined(CORE_TEENSY)
 #define ALTSS_BASE_FREQ F_BUS
 #else
-#define ALTSS_BASE_FREQ F_CPU
+#define ALTSS_BASE_FREQ F_CPU // 16000000UL ?
 #endif
 
+#define RX_BUFFER_SIZE 256 // 256 RX buffer is needed for GPS communication (64 or 128 was too short)
+#define TX_BUFFER_SIZE 128
+
+void    AltSerialOpen(uint32_t baud); // ok
+uint8_t AltSerialRead();              // ok
+void    AltSerialWrite(uint8_t c);    // ok
+uint8_t AltSerialAvailable();         // ok
+void    AltSerialEnd();               // ok
+uint8_t AltSerialPeek();              // ok
+bool    AltSerialTXfree();            // ok
+uint8_t AltSerialUsedTXBuff();        // ok
+void    AltSerialSerialize(uint8_t a);// ok
+void    AltUartSendData();
+
+// void AltSerialWrite16(int16_t val);
+
+/*
 class AltSoftSerial : public Stream
 {
 public:
@@ -72,6 +89,7 @@ private:
 	static void init(uint32_t cycles_per_bit);
 	static void writeByte(uint8_t byte);
 };
+*/
 
 /////////////////////////////////////////////////
 // Board Config
