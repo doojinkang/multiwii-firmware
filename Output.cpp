@@ -417,6 +417,18 @@ void writeMotors() { // [1000;2000] => [125;250]
   /********  Specific PWM Timers & Registers for the atmega328P (Promini)   ************/
   #if defined(PROMINI)
    #ifdef USE_ALT_SOFT_SERIAL
+    // Finaly motor[i] pwm value from 37 ~ 212, and 0 when motor_stop
+    // TODO 1 : maximize 212 to 255
+    // TODO 2 : non-linear equation
+    // motor[i]                     : (1000, 1150 ~ 1850) (MINCOMMAND, MINTHROTTLE ~ MAXTHROTTLE)
+    // motor[i]                >> 3 : ( 125,  131 ~  231) before
+    // (motor[i] - 1000) << 1       : (   0,  300 ~ 1700)
+    //                         >> 3 : (   0,   37 ~  212) after
+    motor[0] = (motor[0]-1000) << 1;
+    motor[1] = (motor[1]-1000) << 1;
+    motor[2] = (motor[2]-1000) << 1;
+    motor[3] = (motor[3]-1000) << 1;
+
     #if (NUMBER_MOTOR > 0)
       #ifdef EXT_MOTOR_RANGE            // 490Hz
         OCR2A = ((motor[0]>>2) - 250);
@@ -1632,12 +1644,12 @@ void mixTable() {
     for(i=0; i< NUMBER_MOTOR; i++) {
       if (maxMotor > MAXTHROTTLE) // this is a way to still have good gyro corrections if at least one motor reaches its max.
         motor[i] -= maxMotor - MAXTHROTTLE;
-      motor[i] = constrain(motor[i], conf.minthrottle, MAXTHROTTLE);
+      motor[i] = constrain(motor[i], conf.minthrottle, MAXTHROTTLE);    // (1150, 1850)
       if ((rcData[THROTTLE] < MINCHECK) && !f.BARO_MODE)
       #ifndef MOTOR_STOP
         motor[i] = conf.minthrottle;
       #else
-        motor[i] = MINCOMMAND;
+        motor[i] = MINCOMMAND;    // (1000)
       #endif
       if (!f.ARMED)
         motor[i] = MINCOMMAND;
