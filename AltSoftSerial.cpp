@@ -30,6 +30,8 @@
 //
 // Version 1.0: Initial Release
 
+#include "config.h"
+#ifdef USE_ALT_SOFT_SERIAL
 
 #include "AltSoftSerial.h"
 // #include "config/AltSoftSerial_Boards.h"
@@ -418,3 +420,4 @@ void ftm0_isr(void)
 }
 #endif
 
+#endif // USE_ALT_SOFT_SERIAL

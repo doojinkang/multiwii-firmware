@@ -24,6 +24,8 @@
 #ifndef AltSoftSerial_h
 #define AltSoftSerial_h
 
+#ifdef USE_ALT_SOFT_SERIAL
+
 #include <inttypes.h>
 
 #if ARDUINO >= 100
@@ -391,5 +393,6 @@ private:
 
 /////////////////////////////////////////////////
 
+#endif // USE_ALT_SOFT_SERIAL
 
 #endif
