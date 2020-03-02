@@ -42,6 +42,12 @@
 
   stop motor when Armed
 
+## Material
+- Motor, Prop : Syma X5 motor (0720)
+- Frame : image/frame.stl
+- Prototype board : 17x17 (52mm)
+
 ## Demo Video
 - https://www.youtube.com/watch?v=ynND-c3DFZ0
+
 
